@@ -30,6 +30,9 @@ void operation::makeLengthEqual(string &num1, string &num2)
 
     num1 = tr0 + num1;
     num2 = tr1 + num2;
+
+    if(num1 == "") num1 = "0";
+    if(num2 == "") num2 = "0";
 }
 
 operation::operation()
@@ -64,9 +67,9 @@ string operation::execute()
     {
         this->result = div(a, b);
     }
-    else if (flag == OP::SH) 
+    else if (flag == OP::SLL) 
     {
-        this->result = shift(a, b);
+        this->result = sll(a, b);
     }
     else if (flag == OP::CMP)
     {
@@ -150,8 +153,43 @@ string operation::sub(string a, string b)
 
 // returns a * 10^n
 
+std::string operation::slr(string num, string count)
+{
+    return num.substr(0, num.length() - atoi(count.c_str()));
+}
 
-std::string operation::shift(string num, string count)
+std::string operation::sll(string num, string count)
+{
+    for (int i  = 1 ; i <= atoi(count.c_str()); i++)
+    {
+        num = num + "0";
+    }
+
+    return num;
+}
+
+std::string operation::sar(string num, string count)
+{
+    int cnt = atoi(count.c_str());
+    num[cnt] = num[0];
+    for(int i = 0; i < num.length() - cnt; i++) 
+    {
+       
+       num[i + cnt] = num[i];
+       if(i > cnt)
+           num[i] = '0';
+       else
+           num[i] = num[0];
+    }
+    for(int i = num.length() - cnt + 1; i < num.length(); i++) 
+    {
+        num[i] = '0';
+    }
+
+    return num;
+}
+
+std::string operation::sal(string num, string count)
 {
     for (int i  = 1 ; i <= atoi(count.c_str()); i++)
     {
@@ -206,6 +244,10 @@ void operation::remTrailingZero(string &num){
     if (num == "") num = "0"; // sometimes the whole number is 0
 }
 
+string operation::fast_karatsuba(string num1, string num2)
+{
+    return "0"; // for compile
+}
 
 string operation::karatsuba(string num1, string num2){
     int len1, len2;
@@ -229,13 +271,109 @@ string operation::karatsuba(string num1, string num2){
     string XlYl = karatsuba(xl, yl);
     string s_XlXr = add(xl, xr);
     string s_YlYr = add(yl, yr);
-    string P1 = shift(XlYl, std::to_string(2 * len1));
-    string P2 = shift(sub(karatsuba(s_XlXr, s_YlYr),add(XlYl, XrYr)), std::to_string(len1));
+    string P1 = sll(XlYl, std::to_string(2 * len1));
+    string P2 = sll(sub(karatsuba(s_XlXr, s_YlYr),add(XlYl, XrYr)), std::to_string(len1));
     string P3 = XrYr;
     string res = add(add(P1, P2), P3);
     return res;
 }
 
+#include<bitset>
+
+string operation::to_bit(string base10)
+{
+    remTrailingZero(base10);
+    constexpr const char* zero("00");
+    constexpr const char* one("01");
+    constexpr const char* two("10");
+    constexpr const char* three("11");
+    constexpr const char* four("100");
+    constexpr const char* five("101");
+    constexpr const char* six("110");
+    constexpr const char* seven("111");
+    constexpr const char* eight("1000");
+    constexpr const char* nine("1001");
+    string res = "0";
+    for(char ch : base10) {
+        string x1 = "";
+        switch (ch - '0') {
+            case 0: x1 = zero;
+                    break;
+            case 1: x1 = one;
+                    break;
+            case 2: x1 = two;
+                    break;
+            case 3: x1 = three;
+                    break;
+            case 4: x1 = four;
+                    break;
+            case 5: x1 = five;
+                    break;
+            case 6: x1 = six;
+                    break;
+            case 7: x1 = seven;
+                    break;
+            case 8: x1 = eight;
+                    break;
+            case 9: x1 = nine;
+                    break;
+        }
+
+        string p1 = sll(res, "3");
+        string p2 = sll(res, "1");
+        string p3 = bit_add(p1, p2);
+        string p4 = bit_add(p3, x1);
+        res = p4;
+    }
+    return res;
+}
+
+string operation::bit_sub(string num1, string num2)
+{
+    // two's complement of num2
+    string num2_tc = twos_comp(num2);
+    return bit_add(num1, num2_tc);
+}
+
+string operation::twos_comp(string num)
+{
+    string x = "01";
+
+    for (int i = 0; i < num.length(); i++)
+    {
+        num[i] = (num[i] == '0') ? '1' : '0';
+    }
+
+    return bit_add(num, x);
+}
+
+
+string operation::bit_add(string num1, string num2)
+{
+    
+    makeLengthEqual(num1, num2);
+    std::string res = "";
+    for(int i = 0;  i <= num1.length(); i++) {
+        res += "0";
+    }
+
+    int carry = 0;
+
+    for(int i = res.length() - 1; i >= 1; i--)
+    {
+        int ch1 = num1[i - 1] - '0';
+        int ch2 = num2[i - 1] - '0';
+
+        int sum = ch1 xor ch2 xor carry;
+        res[i] = char((sum) + '0');
+        carry = (ch1 & ch2) | (carry & (ch1 | ch2));
+
+
+
+    }
+    res[0] = char(carry + '0');
+    return res;
+}
 
 string operation::cmp(string num1, string num2)
 {
@@ -259,7 +397,35 @@ string operation::cmp(string num1, string num2)
 // buggy
 string operation::div(string num1, string num2)
 {
-    return "0"; // to compile
+    
+    string num1_bit = to_bit(num1);
+    string num2_bit = to_bit(num2);
+
+    
+    
+    string comp = cmp(num1_bit, num2_bit);
+    // assume num1 is bigger than num2
+    string guess = "1";
+    string remainder = num2_bit;
+
+    string comp_rem = cmp(remainder, num1_bit);
+    while(comp_rem == "1")
+    {
+        remainder = sub(num1_bit, sll(guess, num2));
+        comp_rem = cmp(remainder, num1_bit);
+
+        if(cmp(comp_rem, "0") == "1") {
+            guess = guess + "0"; // multiply by 2
+            guess = sll(guess, "1");
+        }
+        else {
+            guess = slr(guess, "1"); // divide by 2
+        }
+
+    }
+
+    // currently base 2
+    return guess; // to supress compiler warning
 }
 
 

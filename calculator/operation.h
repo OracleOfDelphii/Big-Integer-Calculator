@@ -22,18 +22,21 @@
 #include<string>
 #include<vector>
 using namespace std;
-enum OP {ADD, SUB, MUL, DIV, SH, CMP, TR, DEFAULT};
+enum OP {ADD, SUB, MUL, DIV, SLL, SLR, CMP, TR, DEFAULT};
 class operation{
     private:
     string a, b;
     string result;
+
+    string bit_a;
+    string bit_b;
+
     OP flag;
     void makeLengthEqual(string &num1 , string &num2);
 
     void remTrailingZero(string &num);
     string karatsuba(string num1, string num2);
-    
-
+    string fast_karatsuba(string num1, string num2); 
     public:
     operation(string a, string b = "", OP flag = DEFAULT);
     operation(string a, OP flag);
@@ -45,10 +48,18 @@ class operation{
     string get();
 
     string sub(string a, string b);
-    string shift(string num, string count);
+    string sll(string num, string count);
+    string slr(string num, string count);
+    string sar(string num, string count);
+    string sal(string num, string count);
     string add(string num1, string num2);
     string div(string num1, string num2);
     string cmp(string num1, string num2);
+
+    string twos_comp(string num);
+    string bit_add(string num1, string num2); 
+    string bit_sub(string num1, string num2);
+    string to_bit(string num);
 
     void set(string a, string b, OP flag);
 };
