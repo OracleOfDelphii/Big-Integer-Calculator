@@ -321,6 +321,8 @@ string operation::to_bit(string base10)
     return res;
 }
 
+
+// signed subtraction
 string operation::bit_sub(string num1, string num2)
 {
     // two's complement of num2
@@ -342,7 +344,7 @@ string operation::twos_comp(string num)
 
 
 
-// they are signed
+// signed addition
 string operation::bit_add(string num1, string num2)
 {
     
@@ -375,11 +377,13 @@ string operation::bit_add(string num1, string num2)
     return res;
 }
 
+// signed comparison
 string operation::cmp(string num1, string num2)
 {
     makeLengthEqual(num1, num2);
     if(num1 == "" && num2 == "") return "0";
-
+    if(num1[0] == '1' && num2[0] == '0') return "-1";
+    if(num1[0] == '0' && num2[0] == '1') return "1";
     for (int i = 0; i < num2.length(); i++)
     {
         if (num1[i] < num2[i])
