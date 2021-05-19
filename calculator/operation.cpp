@@ -12,27 +12,20 @@ void operation::makeLengthEqual(string &num1, string &num2)
 {
     int len2 = num2.length();
     int len1 = num1.length();
-
-    std::string tr0 = "";
-    std::string tr1 = "";
-
-    for (int i = 1 ; i <= (len2 - len1) ; i++)
-    {
-        tr0 = tr0 + "0";
-
+    
+    if( len2 > len1) {
+        for(int i = 0; i < len2 - len1 ; i++)
+        {
+            num1 = num1[0] + num1;
+        }
     }
 
-    for (int i = 1; i <= (len1 - len2); i++)
-    {
-     
-        tr1 = tr1 + "0";
+    else if(len1 < len2) {
+        for(int i = 0; i < len2 - len1; i++)
+        {
+            num2 = num2[0] + num2;
+        }
     }
-
-    num1 = tr0 + num1;
-    num2 = tr1 + num2;
-
-    if(num1 == "") num1 = "0";
-    if(num2 == "") num2 = "0";
 }
 
 operation::operation()
@@ -236,7 +229,7 @@ string operation::add(string num1, string num2){
 void operation::remTrailingZero(string &num){
     int i = 0;
     char* a = &num[0];
-    while (*a == '0')
+    while (*a == '0' && *(a+1) == '0')
     {
         a++;
     }
@@ -337,41 +330,48 @@ string operation::bit_sub(string num1, string num2)
 
 string operation::twos_comp(string num)
 {
-    string x = "01";
+    string tmp = "";
 
     for (int i = 0; i < num.length(); i++)
     {
         num[i] = (num[i] == '0') ? '1' : '0';
+        tmp += "0";
     }
-
-    return bit_add(num, x);
+    return bit_add(num, tmp + "1");
 }
 
 
+
+// they are signed
 string operation::bit_add(string num1, string num2)
 {
     
     makeLengthEqual(num1, num2);
-    std::string res = "";
-    for(int i = 0;  i <= num1.length(); i++) {
+    std::string res = "0";
+    char flag1 = num1[0];
+    char flag2 = num2[0];
+    for(int i = 0;  i < num1.length(); i++) {
         res += "0";
     }
 
     int carry = 0;
 
-    for(int i = res.length() - 1; i >= 1; i--)
+    for(int i = num2.length() - 1; i >= 0; i--)
     {
-        int ch1 = num1[i - 1] - '0';
-        int ch2 = num2[i - 1] - '0';
+        int ch1 = num1[i] - '0';
+        int ch2 = num2[i] - '0';
 
         int sum = ch1 xor ch2 xor carry;
-        res[i] = char((sum) + '0');
+        res[i + 1] = char((sum) + '0');
         carry = (ch1 & ch2) | (carry & (ch1 | ch2));
 
 
 
     }
-    res[0] = char(carry + '0');
+    if(flag1 == '1' || flag2 == '1') {
+    res[0] = res[1];
+    }
+    
     return res;
 }
 
