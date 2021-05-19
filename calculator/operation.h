@@ -17,33 +17,40 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 */
-#ifndef BIGINTEGER_H
-#define BIGINTEGER_H
+#ifndef OPERATION_H
+#define OPERATION_H
 #include<string>
 #include<vector>
 using namespace std;
-class big_integer{
-private:
-    string num;
-public:
-    // to-do
-    // add precision
-    static void makeLengthEqual(string &num1 , string &num2);
-    void setVal(string val);
-    string getVal();
-    string operator+(big_integer obj);
-    string operator-(big_integer obj);
-    string operator*(big_integer obj);
-    string operator/(big_integer obj);
-    big_integer(string num);
-    string sub(string a, string b);
-    std::string shift(string num , int count);
-    string add(string num1 , string num2);
-    static void remTrailingZero(string &num);
-    string karatsuba(string num1 , string num2);
-    string divison(string num1 , string num2);
-    static int cmp(string num1 , string num2);
+enum OP {ADD, SUB, MUL, DIV, SH, CMP, TR, DEFAULT};
+class operation{
+    private:
+    string a, b;
+    string result;
+    OP flag;
+    void makeLengthEqual(string &num1 , string &num2);
 
+    void remTrailingZero(string &num);
+    string karatsuba(string num1, string num2);
+    
+
+    public:
+    operation(string a, string b = "", OP flag = DEFAULT);
+    operation(string a, OP flag);
+    operation(string num);
+    operation();
+
+    string execute();
+
+    string get();
+
+    string sub(string a, string b);
+    string shift(string num, string count);
+    string add(string num1, string num2);
+    string div(string num1, string num2);
+    string cmp(string num1, string num2);
+
+    void set(string a, string b, OP flag);
 };
 
-#endif // BIGINTEGER_H
+#endif // OPERATION_H

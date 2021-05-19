@@ -22,28 +22,28 @@
 #include<string>
 #include<vector>
 using namespace std;
+#include "operation.h"
+
 class big_integer{
+
 private:
     string num;
+    operation curr_op;
 public:
     // to-do
     // add precision
-    static void makeLengthEqual(string &num1 , string &num2);
-    void setVal(string val);
+    
     string getVal();
     string operator+(big_integer obj);
     string operator-(big_integer obj);
     string operator*(big_integer obj);
     string operator/(big_integer obj);
+    string operator==(big_integer obj);
+    string operator<(big_integer obj);
+    string operator>(big_integer obj);
+    string operator<<(int x);
     big_integer(string num);
-    string sub(string a, string b);
-    std::string shift(string num , int count);
-    string add(string num1 , string num2);
-    static void remTrailingZero(string &num);
-    string karatsuba(string num1 , string num2);
-    string divison(string num1 , string num2);
-    static int cmp(string num1 , string num2);
-
+    big_integer(operation op);
 };
 
 #endif // BIGINTEGER_H
