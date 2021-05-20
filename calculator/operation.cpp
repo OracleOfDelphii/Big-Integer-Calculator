@@ -92,12 +92,13 @@ operation::operation()
         string res;
         if(a.length() > b.length())
         {
-            b = trail_zero(a.length() - b.length()) + b;
+            b = trail(a.length() - b.length(), b[0]) + b;
         }
         else if(a.length() < b.length())
         {
-            a = trail_zero(b.length() - a.length()) + a;
-        } 
+            a = trail(b.length() - a.length(), a[0]) + a;
+        }
+
         string comp = cmp(a, b);
         if (comp == "-1"){
             string tmp = a;
@@ -190,11 +191,11 @@ operation::operation()
             
         if(num1.length() < num2.length())
        {
-          num1 = trail_zero(num2.length() - num1.length()) + num1;
+          num1 = trail(num2.length() - num1.length(), num1[0]) + num1;
        }
        else if(num1.length() > num2.length()) 
        {
-           num2 = trail_zero(num1.length() - num2.length()) + num2;
+           num2 = trail(num1.length() - num2.length(), num2[0]) + num2;
        }
 
         int len1, len2;
@@ -249,11 +250,11 @@ operation::operation()
        
         if(num1.length() < num2.length())
        {
-          num1 = trail_zero(num2.length() - num1.length()) + num1;
+          num1 = trail(num2.length() - num1.length(), num1[0]) + num1;
        }
        else if(num1.length() > num2.length()) 
        {
-           num2 = trail_zero(num1.length() - num2.length()) + num2;
+           num2 = trail(num1.length() - num2.length(), num2[0]) + num2;
        }
         int len1, len2;
         
@@ -356,19 +357,20 @@ string operation::twos_comp(string num)
         num[i] = (num[i] == '0') ? '1' : '0';
         tmp += "0";
     }
-    return bit_add(num, tmp + "1");
+    tmp[tmp.length() - 1] = '1';
+    return bit_add(num, tmp);
 }
 
 
-string operation::trail_zero(int count)
+string operation::trail(int count, char fill)
 {
-    string trail = "";
+    string out = "";
     for(int i = 0; i < count; i++)
     {
-        trail += "0";
+        out += fill;
     }
 
-    return trail;
+    return out;
 }
 
 
@@ -378,11 +380,11 @@ string operation::bit_add(string num1, string num2)
     
     if(num1.length() < num2.length())
     {
-       num1 = trail_zero(num2.length() - num1.length()) + num1;
+       num1 = trail(num2.length() - num1.length(), num1[0]) + num1;
     }
     else if(num1.length() > num2.length()) 
     {
-        num2 = trail_zero(num1.length() - num2.length()) + num2;
+        num2 = trail(num1.length() - num2.length(), num2[0]) + num2;
     } 
 
     std::string res = "0";
@@ -436,7 +438,15 @@ string operation::cmp(string num1, string num2)
 // base2 signed comparison
 string operation::bit_cmp(string num1, string num2)
 {
-    
+    if(num1.length() < num2.length())
+    {
+        num1 = trail(num2.length() - num1.length(), num1[0]) + num1;
+    }
+    else if(num1.length() > num2.length())
+    {
+        num2 = trail(num1.length() - num2.length(), num2[0]) + num2;
+    }
+
     if(num1 == "" && num2 == "") return "0";
     if(num1[0] == '1' && num2[0] == '0') return "-1";
     if(num1[0] == '0' && num2[0] == '1') return "1";
@@ -457,33 +467,55 @@ string operation::bit_cmp(string num1, string num2)
 
 
 // buggy
+//
+#include<queue>
 string operation::div(string num1, string num2)
 {
-    
+
     string num1_bit = to_bit(num1);
     string num2_bit = to_bit(num2);
-
-    
+    num1_bit = num1_bit;
+    num2_bit = num2_bit;
     
     string comp = bit_cmp(num1_bit, num2_bit);
     // assume num1 is bigger than num2
-    string guess = "1";
+    string guess = "01";
     string remainder = num2_bit;
+    debug("num1_bit ", num1_bit, " num2_bit ", num2_bit, "\n");
 
-    string comp_rem = bit_cmp(remainder, num1_bit);
-    while(comp_rem == "1")
+    string comp_rem = bit_cmp(num1_bit, num2_bit);
+
+    string divisor = num2_bit;
+    
+    std::queue<string> parts;
+    int i = 0;
+    while(true)
     {
-        remainder = bit_sub(num1_bit, sll(guess, to_string(num2_bit.length())));
-        comp_rem = bit_cmp(remainder, num1_bit);
+        i++;
+        if(i > 10) break;
+        
+        remainder = bit_sub(num1_bit, divisor);
+        string tmp = bit_add(divisor, divisor);
 
-        if(cmp(comp_rem, "0") == "1") {
-            guess = guess + "0"; // multiply by 2
-            guess = sll(guess, "1");
+
+        if(bit_cmp(num1_bit, tmp) == "1") {
+            divisor = tmp;
+            guess = sal(guess, "1");
         }
         else {
-            guess = slr(guess, "1"); // divide by 2
+            num1_bit = bit_sub(num1_bit, divisor);
+            divisor = num2_bit;
+            parts.push(guess);
+            guess  = "01";
+            if(bit_cmp(num1_bit, divisor) == "-1") break;
         }
+    }
 
+    guess = "00";
+    while(!parts.empty())
+    {
+        guess = bit_add(guess, parts.front());
+        parts.pop();
     }
 
     // currently base 2

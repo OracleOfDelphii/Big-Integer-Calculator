@@ -33,7 +33,7 @@ class operation{
 
     OP flag;
     void makeLengthEqual(string &&num1 , string &&num2);
-    string trail_zero(int count);
+    string trail(int count, char fill);
     void remTrailingZero(string &num);
     string karatsuba(string num1, string num2);
     string fast_karatsuba(string num1, string num2); 
