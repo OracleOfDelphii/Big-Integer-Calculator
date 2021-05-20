@@ -32,8 +32,8 @@ class operation{
     string bit_b;
 
     OP flag;
-    void makeLengthEqual(string &num1 , string &num2);
-
+    void makeLengthEqual(string &&num1 , string &&num2);
+    string trail_zero(int count);
     void remTrailingZero(string &num);
     string karatsuba(string num1, string num2);
     string fast_karatsuba(string num1, string num2); 
@@ -59,8 +59,9 @@ class operation{
     string twos_comp(string num);
     string bit_add(string num1, string num2); 
     string bit_sub(string num1, string num2);
-    string to_bit(string num);
+    string bit_cmp(string num1, string num2);
 
+    string to_bit(string num);
     void set(string a, string b, OP flag);
 };
 
