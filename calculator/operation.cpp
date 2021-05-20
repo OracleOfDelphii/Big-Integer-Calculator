@@ -92,11 +92,11 @@ operation::operation()
         string res;
         if(a.length() > b.length())
         {
-            b = trail(a.length() - b.length(), b[0]) + b;
+            b = trail(a.length() - b.length(), '0') + b;
         }
         else if(a.length() < b.length())
         {
-            a = trail(b.length() - a.length(), a[0]) + a;
+            a = trail(b.length() - a.length(), '0') + a;
         }
 
         string comp = cmp(a, b);
@@ -187,19 +187,21 @@ operation::operation()
 
 
     string operation::add(string num1, string num2){
-       
-            
-        if(num1.length() < num2.length())
-       {
-          num1 = trail(num2.length() - num1.length(), num1[0]) + num1;
-       }
-       else if(num1.length() > num2.length()) 
-       {
-           num2 = trail(num1.length() - num2.length(), num2[0]) + num2;
-       }
-
+      
         int len1, len2;
         
+        if(num1.length() < num2.length()) 
+        {
+            num1 = trail(num2.length() - num1.length(), '0') + num1;
+
+        }
+
+        else if(num1.length() > num2.length())
+        {
+
+            num2 = trail(num1.length() - num2.length(), '0') + num2;
+        }
+
         if (num2.length() == 0)
         {
             num2 = '0';
@@ -284,9 +286,24 @@ operation::operation()
         return res;
     }
 
+string operation::unsigned_base10(string base2)
+{
+    string out = "00";
+    string value = "01";
+    for(int i = base2.length() - 1; i >= 0; i--)
+    {
+        char digit = base2[i];
+        if(digit == '1')
+        {
+        out = add(out, value);
+        }
+        value = add(value, value);
+    }
 
-    // buggy
-string operation::to_bit(string base10)
+    return out;
+}
+
+string operation::signed_base2(string base10)
 {
 
     //remTrailingZero(base10);
@@ -330,8 +347,6 @@ string operation::to_bit(string base10)
         string p2 = sal(res, "1");
         string p3 = bit_add(p1, p2);
         string p4 = bit_add(p3, x1);
-        
-        //debug("p1: ", p1," p2: ", p2, " p3: ", p3, " p4: ", p4, " x1: ", x1, "\n");
   
         res = p4;
 
@@ -393,8 +408,6 @@ string operation::bit_add(string num1, string num2)
     for(int i = 0;  i < num1.length(); i++) {
         res += "0";
     }
-
-    //debug("res: ", res, " num1: ", num1, " num2: ", num2, "\n"); 
     int carry = 0;
 
     for(int i = res.length() - 1; i >= 1; i--)
@@ -421,6 +434,15 @@ string operation::cmp(string num1, string num2)
 {
     
     if(num1 == "" && num2 == "") return "0";
+    if(num1.length() < num2.length())
+    {
+        num1 = trail(num2.length() - num1.length(), '0') + num1;
+    }
+    else if(num1.length() > num2.length())
+    {
+        num2 = trail(num1.length() - num2.length(), '0') + num2;
+    }
+
     for (int i = 0; i < num2.length(); i++)
     {
         if (num1[i] < num2[i])
@@ -464,62 +486,84 @@ string operation::bit_cmp(string num1, string num2)
     return "0";
 }
 
-
-
-// buggy
-//
-#include<queue>
 string operation::div(string num1, string num2)
 {
-
-    string num1_bit = to_bit(num1);
-    string num2_bit = to_bit(num2);
-    num1_bit = num1_bit;
-    num2_bit = num2_bit;
+    string comp = cmp(num1, num2);
     
-    string comp = bit_cmp(num1_bit, num2_bit);
-    // assume num1 is bigger than num2
-    string guess = "01";
-    string remainder = num2_bit;
-    debug("num1_bit ", num1_bit, " num2_bit ", num2_bit, "\n");
+    if(comp == "0") return "01";
 
+    string guess = (comp == "1") ? "1" : "0";
+    string remainder = num2;
+    string comp_rem = cmp(num1, num2);
+
+    string divisor = num2;
+
+    std::string result = "00";
+
+    int i = 0;
+    while(true)
+    {
+
+        string tmp = add(divisor, divisor);
+        
+        if(cmp(num1, tmp) == "1") {
+            divisor = tmp;
+            guess = add(guess, guess);
+        }
+        else {
+            num1 = sub(num1, divisor);
+            divisor = num2;
+            result = add(result, guess);
+            guess  = "01";
+            if(cmp(num1, divisor) == "-1") break;
+        }
+    }
+
+   
+    return result; 
+}
+
+string operation::div_base2(string num1, string num2)
+{
+
+    string num1_bit = num1;
+    string num2_bit = num2;
+
+    string comp = bit_cmp(num1_bit, num2_bit);
+    
+    if(comp == "0") return "01";
+
+    string guess = (comp == "1") ? "01" : "00";
+
+    string remainder = num2_bit;
     string comp_rem = bit_cmp(num1_bit, num2_bit);
 
     string divisor = num2_bit;
     
-    std::queue<string> parts;
-    int i = 0;
+    std::string result = "00";
+    
     while(true)
     {
-        i++;
-        if(i > 10) break;
-        
-        remainder = bit_sub(num1_bit, divisor);
-        string tmp = bit_add(divisor, divisor);
 
+        string tmp = bit_add(divisor, divisor);
 
         if(bit_cmp(num1_bit, tmp) == "1") {
             divisor = tmp;
             guess = sal(guess, "1");
         }
         else {
+            
             num1_bit = bit_sub(num1_bit, divisor);
             divisor = num2_bit;
-            parts.push(guess);
+            result = bit_add(result, guess);
             guess  = "01";
+
             if(bit_cmp(num1_bit, divisor) == "-1") break;
         }
     }
 
-    guess = "00";
-    while(!parts.empty())
-    {
-        guess = bit_add(guess, parts.front());
-        parts.pop();
-    }
-
-    // currently base 2
-    return guess; // to supress compiler warning
+   
+    return result; 
 }
 
 

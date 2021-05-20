@@ -54,6 +54,7 @@ class operation{
     string sal(string num, string count);
     string add(string num1, string num2);
     string div(string num1, string num2);
+    string div_base2(string num1, string num2);
     string cmp(string num1, string num2);
 
     string twos_comp(string num);
@@ -61,7 +62,8 @@ class operation{
     string bit_sub(string num1, string num2);
     string bit_cmp(string num1, string num2);
 
-    string to_bit(string num);
+    string unsigned_base10(string num);
+    string signed_base2(string num);
     void set(string a, string b, OP flag);
 };
 

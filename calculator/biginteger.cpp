@@ -39,7 +39,7 @@ big_integer::big_integer(operation op)
 
 string big_integer::operator/(big_integer obj)
 {
-    curr_op.set(obj.num, num, DIV);
+    curr_op.set(num, obj.num, DIV);
     curr_op.execute();
     return curr_op.get();
 }
