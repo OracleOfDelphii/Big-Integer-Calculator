@@ -22,6 +22,12 @@
 
 #include "operation.h"
 
+
+// TO-DO
+// make two seperate classes(Binary, Decimal)
+// they are both inherited from class number
+// the behaviour of operators is based on their type
+
 class big_integer{
 
 private:
