@@ -2,16 +2,13 @@
 #include "operation.h"
 #include<iostream>
 using namespace std;
-#include<cstdarg>
 
 template<typename ...Args>
-
 void debug(Args && ...args)
 {
-
         (std::cout << ... << args);
-
 }
+
 
 operation::operation()
     {
