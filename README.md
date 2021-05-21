@@ -4,7 +4,8 @@ The multiplication method is based on <a href="https://en.wikipedia.org/wiki/Kar
 
 ## New changes & Features
 
-- base2 operations.(Arithmetic shift, Logical Shift, addition, subtraction, multiplication, division)
+- base2 operations(Arithmetic shift, Logical Shift, addition, subtraction, multiplication, division)
+- base10 operations(addition, subtraction, multiplication, division)
 
 - base conversion(base2 to base10, base10 to base2)
 
