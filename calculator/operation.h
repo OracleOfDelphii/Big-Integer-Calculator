@@ -22,49 +22,89 @@
 #include<string>
 #include<vector>
 using namespace std;
-enum OP {ADD, SUB, MUL, DIV, SLL, SLR, CMP, TR, DEFAULT};
+
+
+
+// bad idea - don't use public constants
+//
+enum OP {ADD, SUB, MUL, DIV, SLL, SLR, SAL, SAR, CMP, TR, DEFAULT};
 class operation{
     private:
-    string a, b;
-    string result;
 
-    string bit_a;
-    string bit_b;
-
+    string a;
+    string b;
+    string res;
     OP flag;
+
+    // these are needed in the api to work properly.
+    
+    // adds leading zeros to make the length equal
     void makeLengthEqual(string &&num1 , string &&num2);
-    string trail(int count, char fill);
     void remTrailingZero(string &num);
-    string karatsuba(string num1, string num2);
-    string fast_karatsuba(string num1, string num2); 
+ 
+    string withLeadingZeros(int count, char fill);
+    
+    // product methods
+    string karatsuba(string& num1, string& num2);
+
+
+
     public:
     operation(string a, string b = "", OP flag = DEFAULT);
     operation(string a, OP flag);
     operation(string num);
     operation();
 
-    string execute();
+    // bad design, public methods should override 
+    // use interface
 
-    string get();
-
-    string sub(string a, string b);
-    string sll(string num, string count);
-    string slr(string num, string count);
-    string sar(string num, string count);
-    string sal(string num, string count);
-    string add(string num1, string num2);
-    string div(string num1, string num2);
-    string div_base2(string num1, string num2);
-    string cmp(string num1, string num2);
-
-    string twos_comp(string num);
-    string bit_add(string num1, string num2); 
-    string bit_sub(string num1, string num2);
-    string bit_cmp(string num1, string num2);
-
-    string unsigned_base10(string num);
-    string signed_base2(string num);
+    // manipulators return void
+    void execute(); 
     void set(string a, string b, OP flag);
+
+    // returns res
+    string result();
+    
+    // shift operations
+    // logical
+    string shifted_ll(string& num, string&& count); 
+    string shifted_lr(string& num, string&& count);
+    // arithmetic
+    string shifted_ar(string& num, string&& count);
+    string shifted_al(string& num, string&& count);
+
+    // base2 math operations
+    string base2_sum(string& num1, string& num2); 
+    string base2_difference(string& num1, string& num2);
+    string twos_complemented(string& num); 
+    string quotient_base2(string& num1, string& num2);
+
+    // base2 logical operations
+    // comparison, returns:
+    // "-1" -> num1 < num2
+    // "0"  -> num1 == num2
+    // "1"  -> num1 > num2
+    string base2_cmp(string& num1, string& num2);
+    
+    // base10 math operations
+    string sum(string& num1, string& num2);
+    string quotient(string& num1, string& num2);
+    string product(string& num1, string& num2); 
+    string difference(string& a, string& b);
+    
+    // base10 Logical operations
+    // comparison, returns:
+    // "-1" ->  num1 < num2
+    // "0" ->  num1 == num2
+    // "1" ->  num1 > num2
+    string cmp(string& num1, string& num2);
+    
+
+    // base conversion
+    // base2 to base10
+    string unsigned_base10(string& num);
+    // base10 to base2
+    string signed_base2(string& num);
 };
 
 #endif // OPERATION_H

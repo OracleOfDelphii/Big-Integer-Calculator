@@ -27,38 +27,48 @@ operation::operation()
         this->b = b;
     }
 
-    string operation::execute() 
+    void operation::execute() 
     {
         if (flag == ADD) 
         {
-            this->result = operation::add(a, b);
+            this->res = operation::sum(a, b);
         }
         else if (flag == OP::SUB) 
         {
-            this->result = operation::sub(a, b);
+            this->res = operation::difference(a, b);
         }
         else if (flag == OP::MUL) 
         {
-            this->result = karatsuba(a, b);
+            this->res = product(a, b);
         }
         else if (flag == OP::DIV)
         {
-            this->result = div(a, b);
+            this->res = quotient(a, b);
         }
         else if (flag == OP::SLL) 
         {
-            this->result = sll(a, b);
+            this->res = shifted_ll(a, std::move(b));
+        }
+        else if (flag == OP::SLR)
+        {
+            this->res = shifted_lr(a, std::move(b));
+        }
+        else if (flag == OP::SAL) 
+        {
+            this->res = shifted_al(a, std::move(b));
+        }
+        else if (flag == OP::SAR)
+        {
+            this->res = shifted_ar(a, std::move(b));
         }
         else if (flag == OP::CMP)
         {
-            this->result = cmp(a, b);
+            this->res = cmp(a, b);
         }
         else
         {
-            this->result = a;
+            this->res = a;
         }
-
-        return this->result;
     }
 
 
@@ -74,10 +84,10 @@ operation::operation()
     }
 
 
-    string operation::get() 
+    string operation::result() 
     {
-        remTrailingZero(result);
-        return result;
+        remTrailingZero(this->res);
+        return this->res;
     }
 
     void operation::set(string a, string b, OP flag)
@@ -87,16 +97,16 @@ operation::operation()
         this->flag = flag;
     }
 
-    string operation::sub(string a, string b)
+    string operation::difference(string& a, string& b)
     {
         string res;
         if(a.length() > b.length())
         {
-            b = trail(a.length() - b.length(), '0') + b;
+            b = withLeadingZeros(a.length() - b.length(), '0') + b;
         }
         else if(a.length() < b.length())
         {
-            a = trail(b.length() - a.length(), '0') + a;
+            a = withLeadingZeros(b.length() - a.length(), '0') + a;
         }
 
         string comp = cmp(a, b);
@@ -139,12 +149,12 @@ operation::operation()
 
     // returns a * 10^n
 
-    std::string operation::slr(string num, string count)
+    std::string operation::shifted_lr(string& num, string&& count)
     {
         return num.substr(0, num.length() - atoi(count.c_str()));
     }
 
-    std::string operation::sll(string num, string count)
+    std::string operation::shifted_ll(string& num, string&& count)
     {
         for (int i  = 1 ; i <= atoi(count.c_str()); i++)
         {
@@ -154,7 +164,7 @@ operation::operation()
         return num;
     }
 
-    std::string operation::sar(string num, string count)
+    std::string operation::shifted_ar(string& num, string&& count)
     {
         int cnt = atoi(count.c_str());
         num[cnt] = num[0];
@@ -175,7 +185,7 @@ operation::operation()
         return num;
     }
 
-    std::string operation::sal(string num, string count)
+    std::string operation::shifted_al(string& num, string&& count)
     {
         for (int i  = 1 ; i <= atoi(count.c_str()); i++)
         {
@@ -186,20 +196,20 @@ operation::operation()
     }
 
 
-    string operation::add(string num1, string num2){
+    string operation::sum(string& num1, string& num2){
       
         int len1, len2;
         
         if(num1.length() < num2.length()) 
         {
-            num1 = trail(num2.length() - num1.length(), '0') + num1;
+            num1 = withLeadingZeros(num2.length() - num1.length(), '0') + num1;
 
         }
 
         else if(num1.length() > num2.length())
         {
 
-            num2 = trail(num1.length() - num2.length(), '0') + num2;
+            num2 = withLeadingZeros(num1.length() - num2.length(), '0') + num2;
         }
 
         if (num2.length() == 0)
@@ -232,7 +242,7 @@ operation::operation()
     }
 
 
-    void operation::remTrailingZero(string &num){
+    void operation::remTrailingZero(string& num){
         int i = 0;
         char* a = &num[0];
         while (*a == '0' && *(a+1) == '0')
@@ -243,20 +253,22 @@ operation::operation()
         if (num == "") num = "0"; // sometimes the whole number is 0
     }
 
-    string operation::fast_karatsuba(string num1, string num2)
-    {
-        return "0"; // for compile
+    string operation::product(string& num1, string& num2)
+    {   
+        return karatsuba(num1, num2);
+
     }
 
-    string operation::karatsuba(string num1, string num2){
+    // uses karatsuba algorithm
+    string operation::karatsuba(string& num1, string& num2){
        
         if(num1.length() < num2.length())
        {
-          num1 = trail(num2.length() - num1.length(), num1[0]) + num1;
+          num1 = withLeadingZeros(num2.length() - num1.length(), num1[0]) + num1;
        }
        else if(num1.length() > num2.length()) 
        {
-           num2 = trail(num1.length() - num2.length(), num2[0]) + num2;
+           num2 = withLeadingZeros(num1.length() - num2.length(), num2[0]) + num2;
        }
         int len1, len2;
         
@@ -277,16 +289,26 @@ operation::operation()
         }
         string XrYr = karatsuba(xr, yr);
         string XlYl = karatsuba(xl, yl);
-        string s_XlXr = add(xl, xr);
-        string s_YlYr = add(yl, yr);
-        string P1 = sll(XlYl, std::to_string(2 * len1));
-        string P2 = sll(sub(karatsuba(s_XlXr, s_YlYr),add(XlYl, XrYr)), std::to_string(len1));
+        string s_XlXr = sum(xl, xr);
+        string s_YlYr = sum(yl, yr);
+        string P1 = shifted_ll(XlYl, std::to_string(2 * len1));
+        
+        // s_XlXr S_YlYr product
+        string I1 = karatsuba(s_XlXr, s_YlYr);
+        // XlYl XrYr sum
+        string I2 = sum(XlYl, XrYr);
+
+        // I1 I2 difference
+        string I3 = difference(I1, I2);
+        
+        string P2 = shifted_ll(I3, std::to_string(len1));
         string P3 = XrYr;
-        string res = add(add(P1, P2), P3);
+        string P1_P2_sum = sum(P1, P2);
+        string res = sum(P1_P2_sum, P3);
         return res;
     }
 
-string operation::unsigned_base10(string base2)
+string operation::unsigned_base10(string& base2)
 {
     string out = "00";
     string value = "01";
@@ -295,15 +317,15 @@ string operation::unsigned_base10(string base2)
         char digit = base2[i];
         if(digit == '1')
         {
-        out = add(out, value);
+        out = sum(out, value);
         }
-        value = add(value, value);
+        value = sum(value, value);
     }
 
     return out;
 }
 
-string operation::signed_base2(string base10)
+string operation::signed_base2(string& base10)
 {
 
     //remTrailingZero(base10);
@@ -343,10 +365,10 @@ string operation::signed_base2(string base10)
                     break;
         }
 
-        string p1 = sal(res, "3");
-        string p2 = sal(res, "1");
-        string p3 = bit_add(p1, p2);
-        string p4 = bit_add(p3, x1);
+        string p1 = shifted_al(res, "3");
+        string p2 = shifted_al(res, "1");
+        string p3 = base2_sum(p1, p2);
+        string p4 = base2_sum(p3, x1);
   
         res = p4;
 
@@ -356,14 +378,14 @@ string operation::signed_base2(string base10)
 
 
 // signed subtraction
-string operation::bit_sub(string num1, string num2)
+string operation::base2_difference(string& num1, string& num2)
 {
     // two's complement of num2
-    string num2_tc = twos_comp(num2);
-    return bit_add(num1, num2_tc);
+    string num2_tc = twos_complemented(num2);
+    return base2_sum(num1, num2_tc);
 }
 
-string operation::twos_comp(string num)
+string operation::twos_complemented(string& num)
 {
     string tmp = "";
 
@@ -373,11 +395,11 @@ string operation::twos_comp(string num)
         tmp += "0";
     }
     tmp[tmp.length() - 1] = '1';
-    return bit_add(num, tmp);
+    return base2_sum(num, tmp);
 }
 
 
-string operation::trail(int count, char fill)
+string operation::withLeadingZeros(int count, char fill)
 {
     string out = "";
     for(int i = 0; i < count; i++)
@@ -390,16 +412,16 @@ string operation::trail(int count, char fill)
 
 
 // signed addition
-string operation::bit_add(string num1, string num2)
+string operation::base2_sum(string& num1, string& num2)
 {
     
     if(num1.length() < num2.length())
     {
-       num1 = trail(num2.length() - num1.length(), num1[0]) + num1;
+       num1 = withLeadingZeros(num2.length() - num1.length(), num1[0]) + num1;
     }
     else if(num1.length() > num2.length()) 
     {
-        num2 = trail(num1.length() - num2.length(), num2[0]) + num2;
+        num2 = withLeadingZeros(num1.length() - num2.length(), num2[0]) + num2;
     } 
 
     std::string res = "0";
@@ -430,17 +452,17 @@ string operation::bit_add(string num1, string num2)
 }
 
 // integer comparison
-string operation::cmp(string num1, string num2)
+string operation::cmp(string& num1, string& num2)
 {
     
     if(num1 == "" && num2 == "") return "0";
     if(num1.length() < num2.length())
     {
-        num1 = trail(num2.length() - num1.length(), '0') + num1;
+        num1 = withLeadingZeros(num2.length() - num1.length(), '0') + num1;
     }
     else if(num1.length() > num2.length())
     {
-        num2 = trail(num1.length() - num2.length(), '0') + num2;
+        num2 = withLeadingZeros(num1.length() - num2.length(), '0') + num2;
     }
 
     for (int i = 0; i < num2.length(); i++)
@@ -458,15 +480,15 @@ string operation::cmp(string num1, string num2)
 }
 
 // base2 signed comparison
-string operation::bit_cmp(string num1, string num2)
+string operation::base2_cmp(string& num1, string& num2)
 {
     if(num1.length() < num2.length())
     {
-        num1 = trail(num2.length() - num1.length(), num1[0]) + num1;
+        num1 = withLeadingZeros(num2.length() - num1.length(), num1[0]) + num1;
     }
     else if(num1.length() > num2.length())
     {
-        num2 = trail(num1.length() - num2.length(), num2[0]) + num2;
+        num2 = withLeadingZeros(num1.length() - num2.length(), num2[0]) + num2;
     }
 
     if(num1 == "" && num2 == "") return "0";
@@ -486,7 +508,7 @@ string operation::bit_cmp(string num1, string num2)
     return "0";
 }
 
-string operation::div(string num1, string num2)
+string operation::quotient(string& num1, string& num2)
 {
     string comp = cmp(num1, num2);
     
@@ -504,16 +526,16 @@ string operation::div(string num1, string num2)
     while(true)
     {
 
-        string tmp = add(divisor, divisor);
+        string tmp = sum(divisor, divisor);
         
         if(cmp(num1, tmp) == "1") {
             divisor = tmp;
-            guess = add(guess, guess);
+            guess = sum(guess, guess);
         }
         else {
-            num1 = sub(num1, divisor);
+            num1 = difference(num1, divisor);
             divisor = num2;
-            result = add(result, guess);
+            result = sum(result, guess);
             guess  = "01";
             if(cmp(num1, divisor) == "-1") break;
         }
@@ -523,42 +545,42 @@ string operation::div(string num1, string num2)
     return result; 
 }
 
-string operation::div_base2(string num1, string num2)
+string operation::quotient_base2(string& num1, string& num2)
 {
 
-    string num1_bit = num1;
-    string num2_bit = num2;
+    string num1_base2 = num1;
+    string num2_base2 = num2;
 
-    string comp = bit_cmp(num1_bit, num2_bit);
+    string comp = base2_cmp(num1_base2, num2_base2);
     
     if(comp == "0") return "01";
 
     string guess = (comp == "1") ? "01" : "00";
 
-    string remainder = num2_bit;
-    string comp_rem = bit_cmp(num1_bit, num2_bit);
+    string remainder = num2_base2;
+    string comp_rem = base2_cmp(num1_base2, num2_base2);
 
-    string divisor = num2_bit;
+    string divisor = num2_base2;
     
     std::string result = "00";
     
     while(true)
     {
 
-        string tmp = bit_add(divisor, divisor);
+        string tmp = base2_sum(divisor, divisor);
 
-        if(bit_cmp(num1_bit, tmp) == "1") {
+        if(base2_cmp(num1_base2, tmp) == "1") {
             divisor = tmp;
-            guess = sal(guess, "1");
+            guess = shifted_al(guess, "1");
         }
         else {
             
-            num1_bit = bit_sub(num1_bit, divisor);
-            divisor = num2_bit;
-            result = bit_add(result, guess);
+            num1_base2 = base2_difference(num1_base2, divisor);
+            divisor = num2_base2;
+            result = base2_sum(result, guess);
             guess  = "01";
 
-            if(bit_cmp(num1_bit, divisor) == "-1") break;
+            if(base2_cmp(num1_base2, divisor) == "-1") break;
         }
     }
 

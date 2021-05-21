@@ -19,14 +19,13 @@
 */
 #ifndef BIGINTEGER_H
 #define BIGINTEGER_H
-#include<string>
-#include<vector>
-using namespace std;
+
 #include "operation.h"
 
 class big_integer{
 
 private:
+    // good design, only two objects for the state of the class.
     string num;
     operation curr_op;
 public:
