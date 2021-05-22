@@ -42,6 +42,10 @@ operation::operation()
         {
             this->res = quotient(a, b);
         }
+        else if(flag == OP::MOD)
+        {
+            this->res = remainder(a, b);
+        }
         else if (flag == OP::SLL) 
         {
             this->res = shifted_ll(a, std::move(b));
@@ -99,11 +103,11 @@ operation::operation()
         string res;
         if(a.length() > b.length())
         {
-            b = withLeadingZeros(a.length() - b.length(), '0') + b;
+            b = withLeadingZeros(a.length() - b.length()) + b;
         }
         else if(a.length() < b.length())
         {
-            a = withLeadingZeros(b.length() - a.length(), '0') + a;
+            a = withLeadingZeros(b.length() - a.length()) + a;
         }
 
         string comp = cmp(a, b);
@@ -199,14 +203,14 @@ operation::operation()
         
         if(num1.length() < num2.length()) 
         {
-            num1 = withLeadingZeros(num2.length() - num1.length(), '0') + num1;
+            num1 = withLeadingZeros(num2.length() - num1.length()) + num1;
 
         }
 
         else if(num1.length() > num2.length())
         {
 
-            num2 = withLeadingZeros(num1.length() - num2.length(), '0') + num2;
+            num2 = withLeadingZeros(num1.length() - num2.length()) + num2;
         }
 
         if (num2.length() == 0)
@@ -261,11 +265,11 @@ operation::operation()
        
         if(num1.length() < num2.length())
        {
-          num1 = withLeadingZeros(num2.length() - num1.length(), num1[0]) + num1;
+          num1 = withLeadingZeros(num2.length() - num1.length()) + num1;
        }
        else if(num1.length() > num2.length()) 
        {
-           num2 = withLeadingZeros(num1.length() - num2.length(), num2[0]) + num2;
+           num2 = withLeadingZeros(num1.length() - num2.length()) + num2;
        }
         int len1, len2;
         
@@ -290,6 +294,7 @@ operation::operation()
         string s_YlYr = sum(yl, yr);
         string P1 = shifted_ll(XlYl, std::to_string(2 * len1));
         
+
         // s_XlXr S_YlYr product
         string I1 = karatsuba(s_XlXr, s_YlYr);
         // XlYl XrYr sum
@@ -396,12 +401,12 @@ string operation::twos_complemented(string& num)
 }
 
 
-string operation::withLeadingZeros(int count, char fill)
+string operation::withLeadingZeros(int count)
 {
     string out = "";
     for(int i = 0; i < count; i++)
     {
-        out += fill;
+        out += '0';
     }
 
     return out;
@@ -414,11 +419,11 @@ string operation::base2_sum(string& num1, string& num2)
     
     if(num1.length() < num2.length())
     {
-       num1 = withLeadingZeros(num2.length() - num1.length(), num1[0]) + num1;
+       num1 = withLeadingZeros(num2.length() - num1.length()) + num1;
     }
     else if(num1.length() > num2.length()) 
     {
-        num2 = withLeadingZeros(num1.length() - num2.length(), num2[0]) + num2;
+        num2 = withLeadingZeros(num1.length() - num2.length()) + num2;
     } 
 
     std::string res = "0";
@@ -455,11 +460,11 @@ string operation::cmp(string& num1, string& num2)
     if(num1 == "" && num2 == "") return "0";
     if(num1.length() < num2.length())
     {
-        num1 = withLeadingZeros(num2.length() - num1.length(), '0') + num1;
+        num1 = withLeadingZeros(num2.length() - num1.length()) + num1;
     }
     else if(num1.length() > num2.length())
     {
-        num2 = withLeadingZeros(num1.length() - num2.length(), '0') + num2;
+        num2 = withLeadingZeros(num1.length() - num2.length()) + num2;
     }
 
     for (int i = 0; i < num2.length(); i++)
@@ -481,11 +486,11 @@ string operation::base2_cmp(string& num1, string& num2)
 {
     if(num1.length() < num2.length())
     {
-        num1 = withLeadingZeros(num2.length() - num1.length(), num1[0]) + num1;
+        num1 = withLeadingZeros(num2.length() - num1.length()) + num1;
     }
     else if(num1.length() > num2.length())
     {
-        num2 = withLeadingZeros(num1.length() - num2.length(), num2[0]) + num2;
+        num2 = withLeadingZeros(num1.length() - num2.length()) + num2;
     }
 
     if(num1 == "" && num2 == "") return "0";
@@ -505,84 +510,97 @@ string operation::base2_cmp(string& num1, string& num2)
     return "0";
 }
 
+
+string operation::remainder(string& num1, string& num2)
+{
+    auto pair = quotient_remainder(num1, num2);
+    return pair.second;
+}
+
 string operation::quotient(string& num1, string& num2)
 {
+    auto pair = quotient_remainder(num1, num2);
+    return pair.first;
+}
+
+
+std::pair<string, string> operation::quotient_remainder(string& num1, string& num2)
+{
     string comp = cmp(num1, num2);
-    
-    if(comp == "0") return "01";
+    // if they're equal, quotient is 1, remainder is 0
+    if(comp == "0") return std::pair<string, string>("01", "00"); 
+    if(comp == "-1") return std::pair<string, string>("00", num1);
 
-    string guess = (comp == "1") ? "1" : "0";
-    string remainder = num2;
+    // partial quot
+    string partial_quot = "1";
+    string remainder = num1;
     string comp_rem = cmp(num1, num2);
-
     string divisor = num2;
 
-    std::string result = "00";
 
-    int i = 0;
+    std::string quot = "00";
+
     while(true)
     {
 
         string tmp = sum(divisor, divisor);
         
-        if(cmp(num1, tmp) == "1") {
+        if(cmp(remainder, tmp) == "1") {
             divisor = tmp;
-            guess = sum(guess, guess);
+            partial_quot = sum(quot, partial_quot);
         }
         else {
-            num1 = difference(num1, divisor);
+            remainder = difference(remainder, divisor);
             divisor = num2;
-            result = sum(result, guess);
-            guess  = "01";
-            if(cmp(num1, divisor) == "-1") break;
+            quot = sum(quot, partial_quot);
+            partial_quot  = "01";
+            if(cmp(remainder, divisor) == "-1") break;
         }
     }
 
    
-    return result; 
+    return std::pair<string, string>(quot, remainder); 
 }
 
-string operation::quotient_base2(string& num1, string& num2)
+std::pair<string, string> operation::base2_quotient_remainder(string& num1, string& num2)
 {
+    string comp = base2_cmp(num1, num2);
 
-    string num1_base2 = num1;
-    string num2_base2 = num2;
+    if(comp == "0") return std::pair<string, string>("01", "00");
 
-    string comp = base2_cmp(num1_base2, num2_base2);
+    if(comp == "-1") return std::pair<string, string>("00", num1);
+
+    string partial_quot = "01";
+
+    string remainder = num1;
+    string comp_rem = base2_cmp(num1, num2);
+
+    string divisor = num2;
     
-    if(comp == "0") return "01";
+    std::string quot = "00";
 
-    string guess = (comp == "1") ? "01" : "00";
 
-    string remainder = num2_base2;
-    string comp_rem = base2_cmp(num1_base2, num2_base2);
-
-    string divisor = num2_base2;
-    
-    std::string result = "00";
-    
     while(true)
     {
 
         string tmp = base2_sum(divisor, divisor);
 
-        if(base2_cmp(num1_base2, tmp) == "1") {
+        if(base2_cmp(remainder, tmp) == "1") {
             divisor = tmp;
-            guess = shifted_al(guess, "1");
+            partial_quot = shifted_al(quot, "1");
         }
         else {
-            
-            num1_base2 = base2_difference(num1_base2, divisor);
-            divisor = num2_base2;
-            result = base2_sum(result, guess);
-            guess  = "01";
 
-            if(base2_cmp(num1_base2, divisor) == "-1") break;
+            remainder = base2_difference(remainder, divisor);
+            divisor = num2;
+            quot = base2_sum(quot, partial_quot);
+            partial_quot  = "01";
+
+            if(base2_cmp(remainder, divisor) == "-1") break;
         }
     }
 
-   
-    return result; 
+    return std::pair<string, string>(quot, remainder); 
 }
 
 

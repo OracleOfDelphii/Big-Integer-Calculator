@@ -38,15 +38,29 @@ public:
     // to-do
     // add precision
     
-    string getVal();
+    string value();
     string operator+(big_integer obj);
     string operator-(big_integer obj);
     string operator*(big_integer obj);
     string operator/(big_integer obj);
+    string operator%(big_integer obj);
     string operator==(big_integer obj);
     string operator<(big_integer obj);
     string operator>(big_integer obj);
+    string operator>=(big_integer obj);
+    string operator <=(big_integer obj);
     string operator<<(int x);
+    string operator>>(int x);
+
+
+    // manipulators
+    void operator+=(big_integer obj);
+    void operator-=(big_integer obj);
+    void operator/=(big_integer obj);
+    void operator*=(big_integer obj);
+    void operator%=(big_integer obj);
+    void operator<<=(int x);
+    void operator>>=(int x);
     big_integer(string num);
     big_integer(operation op);
 };

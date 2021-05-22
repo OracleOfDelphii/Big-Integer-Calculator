@@ -21,13 +21,15 @@
 #define OPERATION_H
 #include<string>
 #include<vector>
+#include<utility>
 using namespace std;
+
 
 
 
 // bad idea - don't use public constants
 //
-enum OP {ADD, SUB, MUL, DIV, SLL, SLR, SAL, SAR, CMP, TR, DEFAULT};
+enum OP {ADD, SUB, MUL, DIV, MOD, SLL, SLR, SAL, SAR, CMP, TR, DEFAULT};
 class operation{
     private:
 
@@ -42,7 +44,7 @@ class operation{
     void makeLengthEqual(string &&num1 , string &&num2);
     void remTrailingZero(string &num);
  
-    string withLeadingZeros(int count, char fill);
+    string withLeadingZeros(int count);
     
     // product methods
     string karatsuba(string& num1, string& num2);
@@ -77,8 +79,9 @@ class operation{
     string base2_sum(string& num1, string& num2); 
     string base2_difference(string& num1, string& num2);
     string twos_complemented(string& num); 
-    string quotient_base2(string& num1, string& num2);
-
+    string base2_quotient(string& num1, string& num2);
+    string base2_remainder(string& num1, string& num2);
+    std::pair<string, string> base2_quotient_remainder(string& num1, string& num2);
     // base2 logical operations
     // comparison, returns:
     // "-1" -> num1 < num2
@@ -89,6 +92,9 @@ class operation{
     // base10 math operations
     string sum(string& num1, string& num2);
     string quotient(string& num1, string& num2);
+    string remainder(string& num1, string& num2);
+    std::pair<string, string> quotient_remainder(string& num1, string& num2);
+
     string product(string& num1, string& num2); 
     string difference(string& a, string& b);
     

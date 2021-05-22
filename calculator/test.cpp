@@ -3,8 +3,9 @@
 #include<iostream>
 int main(int argc, char *argv[])
 {
-    big_integer a("32342304923420573846573450273424653846586354012437023847209348132340923502834023402123010923013198438429174839437348908748985442322");
-    big_integer b("23231241982913013010312038102312390103864104012641046104104");
-    
+    big_integer a("12");
+    big_integer b("2");
+    std::cout<<a + b<<std::endl; 
     std::cout<<a * b<<std::endl;
+    std::cout<<a % b<<std::endl;
 }
